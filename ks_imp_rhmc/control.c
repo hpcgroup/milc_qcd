@@ -21,6 +21,7 @@
 #ifdef MILC_GLOBAL_DEBUG
 #include "debug.h"
 #endif /* MILC_GLOBAL_DEBUG */
+#include <mpi.h>
 
 /* For information */
 #define NULL_FP -1
@@ -44,7 +45,9 @@ main( int argc, char **argv )
   if(remap_stdio_from_args(argc, argv) == 1)terminate(1);
   
   g_sync();
-
+  
+  MPI_Pcontrol(2); // make sure profile data is reset
+  MPI_Pcontrol(1); // enable profiling
   starttime = dclock();
 
   /* set up */
@@ -143,6 +146,8 @@ main( int argc, char **argv )
     }
     
     endtime = dclock();
+    MPI_Pcontrol(3); // generate verbose report
+    MPI_Pcontrol(0); // disable profiling
     if(this_node==0){
       printf("Time = %e seconds\n",(double)(endtime-starttime));
       printf("total_iters = %d\n",total_iters);
